@@ -1,0 +1,105 @@
+---
+title: "project"
+author: "Esraa"
+date: "7/27/2019"
+output: html_document
+---
+## The need libraries for the project
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(knitr)
+set.seed(12345)
+library(caret)
+library(ggplot2) 
+library(e1071)
+ 
+```
+
+##Read data from files and Clean it for the analysis
+
+ here data is read and cleaned in order not to affect the result by removing the columns that contains Nulls
+```{r cars}
+
+
+
+testing1<-read.csv(file="D:/DataSienceCoursera/Course 9/project01/pml-testing.csv",na.strings = c("NA", "#DIV/0!", ""))
+training1<-read.csv(file="D:/DataSienceCoursera/Course 9/project01/pml-training.csv",na.strings = c("NA", "#DIV/0!", ""))
+
+colname <- colnames(training1)[!colSums(is.na(training1)) > 0]
+ 
+
+colname <- colname[8: length(colname)]
+training2 <- training1[colname]
+
+
+is.element(colname, colnames(testing1))
+
+
+```
+
+ 
+
+## Data partining to training and testing
+
+divide the training data to 2 parts one for training with the algorithm and the other for the validation. 
+
+```{r pressure1, echo=TRUE}
+
+inTrain<- createDataPartition(y=training2$classe, p = 3/4)[[1]]
+training <- training2[inTrain, ]
+testing <- training2[-inTrain, ]
+
+
+```
+
+
+## Building models
+
+we will try many models for prediting the data
+
+##1.Model: regression tree 
+
+```{r pressure2, echo=TRUE}
+
+
+library(rpart)
+ rpartFit <- train(classe ~ .,
+                   data = training,
+                   "rpart" )
+ prediction <- predict(rpartFit, newData = testing)
+ #confusionMatrix(testing$classe, prediction)
+```
+
+
+##2.Model:Random forest
+```{r pressure3, echo=TRUE}
+#it took very long time to run 
+
+#fit2 <- train(classe ~ ., method="rf", data=training )
+#val2 <- predict(fit2, testing)
+#confusionMatrix(testing$classe, val2)
+ 
+
+```
+
+
+##3.Model: Liner Discriminant Analysis
+```{r pressure4, echo=TRUE}
+ model_lda <- train(classe ~ ., data = training, method = "lda")
+ pred_lda <- predict(model_lda, testing)
+ confusionMatrix(testing$classe, pred_lda)
+ 
+
+```
+
+
+## Data Predicting: regression tree  is used
+
+```{r pressure5, echo=TRUE}
+
+ pred <- predict(rpartFit, newdata=testing1)
+pred
+
+```
+ 
